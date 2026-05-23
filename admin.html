@@ -202,17 +202,38 @@
 const SUPABASE_URL  = 'https://ybehsminxxrblfcauegm.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliZWhzbWlueHhyYmxmY2F1ZWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDQ4NDQsImV4cCI6MjA5NTEyMDg0NH0.k-OPDSAf4trJppvoKJGH7Qd5OiiE7mjDSU9u2s9zxrY';
 
-// ── SET YOUR ADMIN PASSWORD HERE ─────────────────────────────
-const ADMIN_PASSWORD = 'miss2admin2026';
+// ── ADMIN PASSWORD HASH (SHA-256) ────────────────────────────
+// The password is hashed to prevent plaintext exposure in client-side code.
+// The original password 'miss2admin2026' evaluates to this hash.
+// To generate a new hash, you can use:
+// node -e "console.log(require('crypto').createHash('sha256').update('newpassword').digest('hex'))"
+const ADMIN_PASSWORD_HASH = '37b72274ed7a3c1f23781857c0c9961f27629bcec31193950be5e746111df081';
 // ─────────────────────────────────────────────────────────────
 
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ── Auth ─────────────────────────────────────────────────────
-function tryLogin() {
+async function tryLogin() {
   const val = document.getElementById('pw-input').value;
-  if (val === ADMIN_PASSWORD) {
+
+  let hashHex = '';
+  // crypto.subtle is only available in secure contexts (HTTPS or localhost)
+  if (window.crypto && window.crypto.subtle) {
+    // Hash the input password using SHA-256
+    const encoder = new TextEncoder();
+    const data = encoder.encode(val);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  } else {
+    // Fallback: This is not ideal but prevents breaking completely on non-HTTPS
+    // In a real app, you must serve over HTTPS.
+    alert("Insecure context detected. Crypto API unavailable.");
+    return;
+  }
+
+  if (hashHex === ADMIN_PASSWORD_HASH) {
     sessionStorage.setItem('miss2_admin', '1');
     showPanel();
   } else {
