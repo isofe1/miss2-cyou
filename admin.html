@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>miss2.cyou — admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #09090f; --bg2: #0f0f1a; --bg3: #141422;
+    --rose: #e8b4a8; --rose-dim: #c4897a;
+    --gold: #c9a96e; --gold-dim: #a8845a;
+    --text: #f0e8e4; --text-dim: #9e8e8a; --text-muted: #5a5060;
+    --border: rgba(232,180,168,0.12); --border-hover: rgba(232,180,168,0.28);
+    --card-bg: rgba(255,255,255,0.025);
+    --danger: #c47a7a; --danger-bg: rgba(196,122,122,0.08);
+    --success: #7ab88a; --success-bg: rgba(122,184,138,0.08);
+    --pin: #c9a96e; --pin-bg: rgba(201,169,110,0.08);
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; }
+
+  /* Login screen */
+  #login-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .login-box {
+    width: 100%; max-width: 360px; background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 40px 36px;
+  }
+  .login-logo {
+    font-family: 'Cormorant Garamond', serif; font-size: 13px; letter-spacing: 0.3em;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 32px; text-align: center;
+  }
+  .login-title { font-size: 20px; font-weight: 500; margin-bottom: 8px; text-align: center; }
+  .login-sub { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 32px; }
+  .field-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; display: block; }
+  .field-input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300; padding: 12px 16px;
+    outline: none; border-radius: 2px; transition: border-color 0.3s; margin-bottom: 16px;
+  }
+  .field-input:focus { border-color: var(--rose-dim); }
+  .login-btn {
+    width: 100%; padding: 14px; background: transparent; border: 1px solid var(--rose-dim);
+    color: var(--rose); font-family: 'DM Sans', sans-serif; font-size: 12px;
+    letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer;
+    transition: background 0.3s; border-radius: 2px;
+  }
+  .login-btn:hover { background: rgba(232,180,168,0.07); }
+  .login-error { font-size: 13px; color: var(--danger); text-align: center; margin-top: 12px; display: none; }
+
+  /* Admin panel */
+  #admin-panel { display: none; }
+  .topbar {
+    border-bottom: 1px solid var(--border); padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 20px; }
+  .topbar-logo { font-family: 'Cormorant Garamond', serif; font-size: 13px; letter-spacing: 0.25em; color: var(--gold); text-transform: uppercase; }
+  .topbar-title { font-size: 13px; color: var(--text-muted); }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .stat-pill { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 14px; font-size: 12px; color: var(--text-dim); }
+  .logout-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-size: 12px; letter-spacing: 0.1em; padding: 6px 14px; cursor: pointer; border-radius: 2px; transition: border-color 0.2s, color 0.2s; font-family: 'DM Sans', sans-serif; }
+  .logout-btn:hover { border-color: var(--border-hover); color: var(--text); }
+
+  .main { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+
+  /* Filters */
+  .filters { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .filter-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-size: 12px; letter-spacing: 0.1em; padding: 6px 16px; cursor: pointer; border-radius: 20px; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .filter-btn:hover { border-color: var(--border-hover); color: var(--text); }
+  .filter-btn.active { border-color: var(--rose-dim); color: var(--rose); }
+
+  /* Search */
+  .search-wrap { position: relative; margin-bottom: 24px; }
+  .search-input {
+    width: 100%; background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300;
+    padding: 11px 16px 11px 40px; outline: none; border-radius: 2px; transition: border-color 0.3s;
+  }
+  .search-input:focus { border-color: var(--rose-dim); }
+  .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 15px; pointer-events: none; }
+
+  /* Notes list */
+  .notes-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .admin-note {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 2px;
+    padding: 18px 20px; display: flex; gap: 16px; align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+  .admin-note:hover { border-color: var(--border-hover); }
+  .admin-note.is-pinned { border-color: rgba(201,169,110,0.35); background: var(--pin-bg); }
+  .admin-note.is-deleted { opacity: 0.35; }
+
+  .note-content { flex: 1; min-width: 0; }
+  .note-msg {
+    font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 300; line-height: 1.55;
+    color: var(--text); margin-bottom: 10px; word-break: break-word;
+  }
+  .note-info { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+  .note-from { font-size: 11px; letter-spacing: 0.12em; color: var(--gold-dim); text-transform: uppercase; }
+  .note-time { font-size: 11px; color: var(--text-muted); }
+  .note-likes { font-size: 11px; color: var(--text-muted); }
+  .pin-badge { font-size: 10px; background: var(--pin-bg); border: 1px solid rgba(201,169,110,0.3); color: var(--pin); padding: 2px 8px; border-radius: 10px; letter-spacing: 0.1em; }
+
+  .note-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+  .act-btn {
+    padding: 6px 14px; font-size: 11px; letter-spacing: 0.1em; border-radius: 2px;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .btn-pin { background: var(--pin-bg); border: 1px solid rgba(201,169,110,0.25); color: var(--pin); }
+  .btn-pin:hover { border-color: var(--pin); }
+  .btn-unpin { background: var(--bg3); border: 1px solid var(--border); color: var(--text-muted); }
+  .btn-unpin:hover { border-color: var(--border-hover); color: var(--text); }
+  .btn-delete { background: var(--danger-bg); border: 1px solid rgba(196,122,122,0.25); color: var(--danger); }
+  .btn-delete:hover { border-color: var(--danger); }
+  .btn-delete:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Empty / loading */
+  .empty { text-align: center; padding: 60px 20px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 20px; color: var(--text-muted); }
+  .skeleton { background: var(--card-bg); border: 1px solid var(--border); border-radius: 2px; padding: 20px; margin-bottom: 10px; }
+  .skel-line { background: rgba(255,255,255,0.05); border-radius: 2px; margin-bottom: 8px; animation: shimmer 1.6s ease-in-out infinite; }
+  @keyframes shimmer { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
+
+  /* Toast */
+  .toast-wrap { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 100; }
+  .toast-item {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 4px;
+    padding: 12px 18px; font-size: 13px; color: var(--text-dim);
+    animation: slideIn 0.3s ease; max-width: 280px;
+  }
+  .toast-item.success { border-color: rgba(122,184,138,0.4); color: var(--success); }
+  .toast-item.danger  { border-color: rgba(196,122,122,0.4); color: var(--danger); }
+  @keyframes slideIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+
+  @media (max-width: 600px) {
+    .topbar { padding: 14px 16px; }
+    .main { padding: 20px 16px; }
+    .admin-note { flex-direction: column; }
+    .note-actions { flex-direction: row; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Login ── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">miss2.cyou</div>
+    <div class="login-title">Admin access</div>
+    <div class="login-sub">Enter your password to continue</div>
+    <label class="field-label">password</label>
+    <input class="field-input" type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')tryLogin()">
+    <button class="login-btn" onclick="tryLogin()">enter</button>
+    <div class="login-error" id="login-error">incorrect password</div>
+  </div>
+</div>
+
+<!-- ── Admin panel ── -->
+<div id="admin-panel">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-logo">miss2.cyou</span>
+      <span class="topbar-title">admin panel</span>
+    </div>
+    <div class="topbar-right">
+      <span class="stat-pill" id="stat-total">— notes</span>
+      <span class="stat-pill" id="stat-pinned">— pinned</span>
+      <button class="logout-btn" onclick="logout()">log out</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="search-input" type="text" placeholder="search notes…" oninput="filterNotes()">
+    </div>
+
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('all', this)">all</button>
+      <button class="filter-btn" onclick="setFilter('pinned', this)">pinned</button>
+      <button class="filter-btn" onclick="setFilter('recent', this)">most recent</button>
+      <button class="filter-btn" onclick="setFilter('liked', this)">most liked</button>
+    </div>
+
+    <div class="notes-list" id="notes-list">
+      <div class="skeleton"><div class="skel-line" style="height:18px;width:80%"></div><div class="skel-line" style="height:18px;width:55%"></div><div class="skel-line" style="height:11px;width:30%;margin-top:10px"></div></div>
+      <div class="skeleton"><div class="skel-line" style="height:18px;width:70%"></div><div class="skel-line" style="height:11px;width:25%;margin-top:10px"></div></div>
+      <div class="skeleton"><div class="skel-line" style="height:18px;width:88%"></div><div class="skel-line" style="height:18px;width:45%"></div><div class="skel-line" style="height:11px;width:35%;margin-top:10px"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ── Config ───────────────────────────────────────────────────
+const SUPABASE_URL  = 'https://ybehsminxxrblfcauegm.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliZWhzbWlueHhyYmxmY2F1ZWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDQ4NDQsImV4cCI6MjA5NTEyMDg0NH0.k-OPDSAf4trJppvoKJGH7Qd5OiiE7mjDSU9u2s9zxrY';
+
+// ── SET YOUR ADMIN PASSWORD HERE ─────────────────────────────
+const ADMIN_PASSWORD = 'miss2admin2026';
+// ─────────────────────────────────────────────────────────────
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ── Auth ─────────────────────────────────────────────────────
+function tryLogin() {
+  const val = document.getElementById('pw-input').value;
+  if (val === ADMIN_PASSWORD) {
+    sessionStorage.setItem('miss2_admin', '1');
+    showPanel();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('miss2_admin');
+  location.reload();
+}
+
+function showPanel() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-panel').style.display = 'block';
+  loadNotes();
+}
+
+if (sessionStorage.getItem('miss2_admin') === '1') showPanel();
+
+// ── State ─────────────────────────────────────────────────────
+let allNotes = [];
+let currentFilter = 'all';
+
+// ── Load ──────────────────────────────────────────────────────
+async function loadNotes() {
+  const { data, error } = await sb.from('notes').select('*').order('created_at', { ascending: false });
+  if (error) { toast('Failed to load notes', 'danger'); return; }
+  allNotes = data;
+  updateStats();
+  renderNotes();
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = allNotes.length + ' notes';
+  document.getElementById('stat-pinned').textContent = allNotes.filter(n => n.pinned).length + ' pinned';
+}
+
+// ── Filter & search ───────────────────────────────────────────
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderNotes();
+}
+
+function filterNotes() { renderNotes(); }
+
+function getFiltered() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  let notes = [...allNotes];
+  if (q) notes = notes.filter(n => n.message.toLowerCase().includes(q) || (n.from_name||'').toLowerCase().includes(q));
+  if (currentFilter === 'pinned')  notes = notes.filter(n => n.pinned);
+  if (currentFilter === 'liked')   notes.sort((a,b) => (b.likes||0) - (a.likes||0));
+  if (currentFilter === 'recent')  notes.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+  return notes;
+}
+
+// ── Render ────────────────────────────────────────────────────
+function timeAgo(ts) {
+  const d = Date.now() - new Date(ts).getTime();
+  if (d < 60000) return 'just now';
+  if (d < 3600000) return Math.floor(d/60000) + 'm ago';
+  if (d < 86400000) return Math.floor(d/3600000) + 'h ago';
+  if (d < 2592000000) return Math.floor(d/86400000) + 'd ago';
+  return new Date(ts).toLocaleDateString();
+}
+
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderNotes() {
+  const list = document.getElementById('notes-list');
+  const filtered = getFiltered();
+  if (!filtered.length) { list.innerHTML = '<div class="empty">no notes found</div>'; return; }
+
+  list.innerHTML = filtered.map(n => `
+    <div class="admin-note${n.pinned?' is-pinned':''}" id="anote-${n.id}">
+      <div class="note-content">
+        <div class="note-msg">"${esc(n.message)}"</div>
+        <div class="note-info">
+          <span class="note-from">— ${esc(n.from_name||'anonymous')}</span>
+          <span class="note-time">${timeAgo(n.created_at)}</span>
+          <span class="note-likes">♡ ${n.likes||0}</span>
+          ${n.pinned ? '<span class="pin-badge">pinned</span>' : ''}
+        </div>
+      </div>
+      <div class="note-actions">
+        ${n.pinned
+          ? `<button class="act-btn btn-unpin" onclick="togglePin('${n.id}', false)">unpin</button>`
+          : `<button class="act-btn btn-pin"   onclick="togglePin('${n.id}', true)">pin ★</button>`
+        }
+        <button class="act-btn btn-delete" onclick="deleteNote('${n.id}', this)">delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Pin ───────────────────────────────────────────────────────
+async function togglePin(id, pin) {
+  const { error } = await sb.from('notes').update({ pinned: pin }).eq('id', id);
+  if (error) { toast('Could not update note', 'danger'); return; }
+  const note = allNotes.find(n => n.id === id);
+  if (note) note.pinned = pin;
+  updateStats();
+  renderNotes();
+  toast(pin ? '★ Note pinned to top' : 'Note unpinned', 'success');
+}
+
+// ── Delete ────────────────────────────────────────────────────
+async function deleteNote(id, btn) {
+  if (!confirm('Delete this note permanently?')) return;
+  btn.disabled = true;
+  btn.textContent = '…';
+  const { error } = await sb.from('notes').delete().eq('id', id);
+  if (error) { toast('Could not delete note', 'danger'); btn.disabled = false; btn.textContent = 'delete'; return; }
+  allNotes = allNotes.filter(n => n.id !== id);
+  const el = document.getElementById('anote-' + id);
+  if (el) { el.classList.add('is-deleted'); setTimeout(() => el.remove(), 400); }
+  updateStats();
+  toast('Note deleted', 'success');
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+function toast(msg, type = '') {
+  const wrap = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'toast-item ' + type;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ── Realtime ──────────────────────────────────────────────────
+sb.channel('admin-realtime')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notes' }, p => {
+    allNotes.unshift(p.new);
+    updateStats();
+    renderNotes();
+    toast('New note posted!');
+  })
+  .subscribe();
+</script>
+</body>
+</html>
