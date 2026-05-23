@@ -838,8 +838,21 @@ async function deleteMyNote(id) {
 
     showToast('your note has been deleted.');
 
-    // The realtime listener will handle removing the element from the DOM.
-    // If you want optimistic removal, you can do it here, but the realtime event 'DELETE' already removes it smoothly.
+    // Optimistically remove the element from the DOM
+    const el = document.getElementById('note-' + id);
+    if (el) {
+      el.style.transition = 'opacity 0.4s, transform 0.4s';
+      el.style.opacity = '0';
+      el.style.transform = 'scale(0.97)';
+      setTimeout(() => el.remove(), 420);
+      totalCount = Math.max(0, totalCount - 1);
+      offset = Math.max(0, offset - 1);
+      document.getElementById('notes-count').textContent = totalCount + ' ' + (totalCount === 1 ? 'note' : 'notes');
+      const grid = document.getElementById('notes-grid');
+      setTimeout(() => {
+        if (grid.children.length === 0) grid.innerHTML = '<div class="empty-state">no notes yet — be the first.</div>';
+      }, 430);
+    }
 
   } catch (err) {
     console.error(err);
