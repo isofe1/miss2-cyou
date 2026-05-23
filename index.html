@@ -670,6 +670,13 @@ function showToast(msg, isError = false) {
 let likedSet = new Set(JSON.parse(localStorage.getItem('miss2_liked') || '[]'));
 function saveLiked() { localStorage.setItem('miss2_liked', JSON.stringify([...likedSet])); }
 
+// ── Owned notes (localStorage) ──────────────────────────────
+let ownedNotes = JSON.parse(localStorage.getItem('miss2_owned') || '{}');
+function saveOwned() { localStorage.setItem('miss2_owned', JSON.stringify(ownedNotes)); }
+function generateDeleteKey() {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
 // ── Notes state ─────────────────────────────────────────────
 const PAGE = 12;
 let offset = 0;
@@ -679,6 +686,7 @@ let loadedNotes = [];
 // ── Render a single note card ────────────────────────────────
 function noteCardHTML(n, isNew = false) {
   const liked = likedSet.has(n.id);
+  const isOwned = !!ownedNotes[n.id];
   return `
     <div class="note-card${n.pinned?' pinned':''}${isNew?' new-note':''}" id="note-${n.id}">
       ${n.pinned ? '<span class="pin-badge">★ pinned</span>' : ''}
@@ -686,6 +694,7 @@ function noteCardHTML(n, isNew = false) {
       <div class="note-meta">
         <span class="note-from">— ${escapeHTML(n.from_name || 'anonymous')}</span>
         <div class="note-right">
+          ${isOwned ? `<button class="note-heart" style="color:var(--danger);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;" onclick="deleteMyNote('${n.id}')">delete</button>` : ''}
           <span class="note-time">${timeAgo(n.created_at)}</span>
           <button class="note-heart${liked?' liked':''}" onclick="toggleLike('${n.id}', ${n.likes})" aria-label="like">
             ${liked?'♥':'♡'} <span id="likes-${n.id}">${n.likes || 0}</span>
@@ -767,13 +776,18 @@ async function submitNote() {
   btn.textContent = 'sending…';
 
   try {
+    const deleteKey = generateDeleteKey();
     const { data, error } = await sb
       .from('notes')
-      .insert({ from_name: name || 'anonymous', message: msg, likes: 0 })
+      .insert({ from_name: name || 'anonymous', message: msg, likes: 0, delete_key: deleteKey })
       .select()
       .single();
 
     if (error) throw error;
+
+    // Save ownership locally
+    ownedNotes[data.id] = deleteKey;
+    saveOwned();
 
     // Reset form
     document.getElementById('input-name').value = '';
@@ -798,6 +812,38 @@ async function submitNote() {
   } finally {
     btn.disabled = false;
     btn.textContent = 'send it into the world';
+  }
+}
+
+// ── Delete my note ───────────────────────────────────────────
+async function deleteMyNote(id) {
+  if (!sb) return;
+  const deleteKey = ownedNotes[id];
+  if (!deleteKey) return;
+
+  if (!confirm('Are you sure you want to permanently delete this note?')) return;
+
+  try {
+    const { error } = await sb
+      .from('notes')
+      .delete()
+      .eq('id', id)
+      .eq('delete_key', deleteKey);
+
+    if (error) throw error;
+
+    // Remove from local storage
+    delete ownedNotes[id];
+    saveOwned();
+
+    showToast('your note has been deleted.');
+
+    // The realtime listener will handle removing the element from the DOM.
+    // If you want optimistic removal, you can do it here, but the realtime event 'DELETE' already removes it smoothly.
+
+  } catch (err) {
+    console.error(err);
+    showToast('couldn\'t delete note. please try again.', true);
   }
 }
 
