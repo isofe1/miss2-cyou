@@ -81,13 +81,13 @@
 
         /* Hero Section */
         .hero {
-            min-height: 100vh;
+            min-height: 60vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 2rem;
+            padding: 2rem 2rem 1rem;
             position: relative;
         }
 
@@ -111,9 +111,9 @@
 
         .hero-title {
             font-family: 'Georgia', 'Garamond', serif;
-            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-size: clamp(2rem, 8vw, 3.5rem);
             font-weight: 300;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             background: linear-gradient(135deg, var(--gold), var(--rose));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -123,9 +123,9 @@
         }
 
         .hero-subtitle {
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            font-size: clamp(0.85rem, 3vw, 1rem);
             color: var(--text-muted);
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             font-weight: 300;
             line-height: 1.6;
             letter-spacing: 0.5px;
@@ -138,12 +138,13 @@
 
         .scroll-hint {
             position: absolute;
-            bottom: 2rem;
+            bottom: 1.5rem;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             animation: pulse 2s ease-in-out infinite;
+            cursor: pointer;
         }
 
         @keyframes pulse {
@@ -153,7 +154,7 @@
             }
             50% {
                 opacity: 1;
-                transform: translateX(-50%) translateY(8px);
+                transform: translateX(-50%) translateY(6px);
             }
         }
 
@@ -172,13 +173,13 @@
         .form-section {
             padding: 2rem;
             max-width: 500px;
-            margin: 4rem auto;
+            margin: 2rem auto;
             animation: fadeIn 0.8s ease-out 0.3s both;
         }
 
         .form-title {
             font-family: 'Georgia', 'Garamond', serif;
-            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-size: clamp(1.3rem, 5vw, 1.8rem);
             margin-bottom: 0.5rem;
             color: var(--gold);
             font-weight: 300;
@@ -188,8 +189,8 @@
         .form-subtitle {
             text-align: center;
             color: var(--text-muted);
-            margin-bottom: 2rem;
-            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
         }
 
         .form-group {
@@ -198,7 +199,7 @@
 
         label {
             display: block;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             margin-bottom: 0.5rem;
             letter-spacing: 0.5px;
@@ -207,13 +208,13 @@
         input[type="text"],
         textarea {
             width: 100%;
-            padding: 1rem;
+            padding: 0.9rem;
             background: rgba(212, 165, 116, 0.08);
             border: 1px solid rgba(212, 165, 116, 0.3);
             border-radius: 4px;
             color: var(--text-light);
             font-family: inherit;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
             resize: vertical;
         }
@@ -227,8 +228,8 @@
         }
 
         textarea {
-            min-height: 120px;
-            font-size: 0.95rem;
+            min-height: 100px;
+            font-size: 0.9rem;
             line-height: 1.6;
         }
 
@@ -239,10 +240,10 @@
 
         button {
             flex: 1;
-            padding: 1rem;
+            padding: 0.9rem;
             border: none;
             border-radius: 4px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -278,14 +279,14 @@
         /* Success Message */
         .success-message {
             display: none;
-            padding: 1rem;
+            padding: 0.9rem;
             background: rgba(201, 124, 124, 0.1);
             border: 1px solid var(--rose);
             border-radius: 4px;
             color: var(--rose);
             text-align: center;
             margin-bottom: 1rem;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             animation: slideDown 0.4s ease;
         }
 
@@ -306,7 +307,7 @@
 
         /* Wall Section */
         .wall-section {
-            padding: 4rem 2rem;
+            padding: 3rem 2rem;
             max-width: 800px;
             margin: 0 auto;
             animation: fadeIn 0.8s ease-out 0.6s both;
@@ -314,23 +315,23 @@
 
         .wall-title {
             font-family: 'Georgia', 'Garamond', serif;
-            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            font-size: clamp(1.5rem, 6vw, 2.2rem);
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             color: var(--gold);
             font-weight: 300;
         }
 
         .notes-container {
             display: grid;
-            gap: 2rem;
+            gap: 1.5rem;
             grid-template-columns: 1fr;
         }
 
         .note-card {
             background: rgba(45, 27, 78, 0.4);
             border: 1px solid rgba(212, 165, 116, 0.2);
-            padding: 1.5rem;
+            padding: 1.2rem;
             border-radius: 4px;
             backdrop-filter: blur(10px);
             animation: slideIn 0.6s ease-out;
@@ -354,10 +355,10 @@
         }
 
         .note-content {
-            font-size: 0.95rem;
-            line-height: 1.8;
+            font-size: 0.9rem;
+            line-height: 1.7;
             color: var(--text-light);
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             font-style: italic;
         }
 
@@ -365,10 +366,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             border-top: 1px solid rgba(212, 165, 116, 0.1);
-            padding-top: 1rem;
+            padding-top: 0.8rem;
         }
 
         .note-author {
@@ -382,12 +383,12 @@
 
         .empty-state {
             text-align: center;
-            padding: 3rem 2rem;
+            padding: 2rem;
             color: var(--text-muted);
         }
 
         .empty-state-text {
-            font-size: 1rem;
+            font-size: 0.95rem;
             line-height: 1.6;
         }
 
@@ -396,7 +397,7 @@
             text-align: center;
             padding: 2rem;
             color: var(--text-muted);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             margin-top: 2rem;
         }
 
@@ -404,7 +405,7 @@
             width: 40px;
             height: 1px;
             background: var(--accent);
-            margin: 0 auto 1rem;
+            margin: 0 auto 1.5rem;
             opacity: 0.5;
         }
 
@@ -420,11 +421,13 @@
         /* Responsive */
         @media (max-width: 768px) {
             .hero {
-                padding: 1.5rem;
+                min-height: 50vh;
+                padding: 2rem 1.5rem 1rem;
             }
 
             .form-section {
                 padding: 1.5rem;
+                margin: 1rem auto;
             }
 
             .wall-section {
@@ -470,7 +473,7 @@
                     <em>a lover, a friend, a memory, or a version of yourself</em>
                 </p>
             </div>
-            <div class="scroll-hint">scroll down to leave your note</div>
+            <div class="scroll-hint">↓ scroll to leave your note</div>
         </section>
 
         <!-- Form Section -->
@@ -672,4 +675,4 @@
         });
     </script>
 </body>
-  </html>
+</html>
