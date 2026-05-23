@@ -305,6 +305,50 @@
             }
         }
 
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 1rem;
+            animation: fadeIn 0.8s ease-out 0.5s both;
+        }
+
+        .cta-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .cta-text em {
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        .btn-view-notes {
+            display: inline-block;
+            padding: 0.85rem 2rem;
+            background: transparent;
+            border: 1.5px solid var(--gold);
+            color: var(--gold);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-view-notes:hover {
+            background: rgba(212, 165, 116, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 165, 116, 0.2);
+        }
+
+        .btn-view-notes:active {
+            transform: translateY(0);
+        }
+
         /* Wall Section */
         .wall-section {
             padding: 3rem 2rem;
@@ -430,6 +474,11 @@
                 margin: 1rem auto;
             }
 
+            .cta-section {
+                padding: 1.5rem;
+                margin-top: 1rem;
+            }
+
             .wall-section {
                 padding: 2rem 1.5rem;
             }
@@ -501,6 +550,16 @@
                     <button type="reset" class="btn-clear">Clear</button>
                 </div>
             </form>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <p class="cta-text">
+                <em>take a moment to read what others have shared</em>
+            </p>
+            <button class="btn-view-notes" onclick="document.querySelector('.wall-section').scrollIntoView({ behavior: 'smooth' })">
+                ↓ See Notes Left Behind
+            </button>
         </section>
 
         <!-- Wall Section -->
