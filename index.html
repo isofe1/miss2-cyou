@@ -74,14 +74,13 @@
         .container {
             position: relative;
             z-index: 2;
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
         /* Hero Section */
         .hero {
-            min-height: 60vh;
+            min-height: 50vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -138,7 +137,7 @@
 
         .scroll-hint {
             position: absolute;
-            bottom: 1.5rem;
+            bottom: 1rem;
             left: 50%;
             transform: translateX(-50%);
             font-size: 0.8rem;
@@ -171,10 +170,11 @@
 
         /* Form Section */
         .form-section {
-            padding: 2rem;
+            padding: 1.5rem;
             max-width: 500px;
-            margin: 2rem auto;
+            margin: 0 auto;
             animation: fadeIn 0.8s ease-out 0.3s both;
+            width: 100%;
         }
 
         .form-title {
@@ -308,41 +308,39 @@
         /* CTA Section */
         .cta-section {
             text-align: center;
-            padding: 2rem;
-            margin-top: 1rem;
+            padding: 1.5rem;
+            margin: 0 auto;
             animation: fadeIn 0.8s ease-out 0.5s both;
+            max-width: 500px;
+            width: 100%;
         }
 
         .cta-text {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            line-height: 1.6;
-        }
-
-        .cta-text em {
             color: var(--gold);
+            font-size: 0.95rem;
+            margin-bottom: 1.2rem;
+            line-height: 1.6;
             font-style: italic;
+            font-weight: 500;
         }
 
         .btn-view-notes {
             display: inline-block;
-            padding: 0.85rem 2rem;
-            background: transparent;
-            border: 1.5px solid var(--gold);
-            color: var(--gold);
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, var(--gold), var(--rose));
+            border: none;
+            color: var(--bg-dark);
             border-radius: 4px;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-weight: 500;
+            font-weight: 600;
             letter-spacing: 0.5px;
         }
 
         .btn-view-notes:hover {
-            background: rgba(212, 165, 116, 0.1);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(212, 165, 116, 0.2);
+            box-shadow: 0 10px 30px rgba(212, 165, 116, 0.3);
         }
 
         .btn-view-notes:active {
@@ -351,17 +349,18 @@
 
         /* Wall Section */
         .wall-section {
-            padding: 3rem 2rem;
+            padding: 2rem;
             max-width: 800px;
-            margin: 0 auto;
+            margin: 1.5rem auto 0;
             animation: fadeIn 0.8s ease-out 0.6s both;
+            width: 100%;
         }
 
         .wall-title {
             font-family: 'Georgia', 'Garamond', serif;
-            font-size: clamp(1.5rem, 6vw, 2.2rem);
+            font-size: clamp(1.3rem, 6vw, 2rem);
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             color: var(--gold);
             font-weight: 300;
         }
@@ -465,22 +464,21 @@
         /* Responsive */
         @media (max-width: 768px) {
             .hero {
-                min-height: 50vh;
-                padding: 2rem 1.5rem 1rem;
+                min-height: 45vh;
+                padding: 2rem 1.5rem 0.5rem;
             }
 
             .form-section {
                 padding: 1.5rem;
-                margin: 1rem auto;
             }
 
             .cta-section {
                 padding: 1.5rem;
-                margin-top: 1rem;
             }
 
             .wall-section {
-                padding: 2rem 1.5rem;
+                padding: 1.5rem;
+                margin-top: 1rem;
             }
 
             .button-group {
@@ -554,12 +552,8 @@
 
         <!-- CTA Section -->
         <section class="cta-section">
-            <p class="cta-text">
-                <em>take a moment to read what others have shared</em>
-            </p>
-            <button class="btn-view-notes" onclick="document.querySelector('.wall-section').scrollIntoView({ behavior: 'smooth' })">
-                ↓ See Notes Left Behind
-            </button>
+            <p class="cta-text">💫 See what others have shared</p>
+            <button class="btn-view-notes">📖 View Notes Below</button>
         </section>
 
         <!-- Wall Section -->
@@ -731,6 +725,11 @@
         // Smooth scroll for scroll hint
         document.querySelector('.scroll-hint').addEventListener('click', () => {
             document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // View notes button
+        document.querySelector('.btn-view-notes').addEventListener('click', () => {
+            document.querySelector('.wall-section').scrollIntoView({ behavior: 'smooth' });
         });
     </script>
 </body>
