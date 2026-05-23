@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>miss2.cyou — miss to see you</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Color Variables */
+        :root {
+            --bg-dark: #0f1419;
+            --bg-darker: #0a0e12;
+            --purple-deep: #2d1b4e;
+            --gold: #d4a574;
+            --rose: #c97c7c;
+            --text-light: #f0e6d2;
+            --text-muted: #a89f93;
+            --accent: #d4a574;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--purple-deep) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Particle Background */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(var(--tx));
+                opacity: 0;
+            }
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(212, 165, 116, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            max-width: 600px;
+            animation: fadeInUp 1.2s ease-out;
+        }
+
+        .hero-title {
+            font-family: 'Georgia', 'Garamond', serif;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 300;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--gold), var(--rose));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-weight: 300;
+            line-height: 1.6;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-subtitle em {
+            color: var(--rose);
+            font-style: italic;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.5;
+                transform: translateX(-50%) translateY(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(8px);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Form Section */
+        .form-section {
+            padding: 2rem;
+            max-width: 500px;
+            margin: 4rem auto;
+            animation: fadeIn 0.8s ease-out 0.3s both;
+        }
+
+        .form-title {
+            font-family: 'Georgia', 'Garamond', serif;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            margin-bottom: 0.5rem;
+            color: var(--gold);
+            font-weight: 300;
+            text-align: center;
+        }
+
+        .form-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(212, 165, 116, 0.08);
+            border: 1px solid rgba(212, 165, 116, 0.3);
+            border-radius: 4px;
+            color: var(--text-light);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            background: rgba(212, 165, 116, 0.12);
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(212, 165, 116, 0.2);
+        }
+
+        textarea {
+            min-height: 120px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--gold), var(--rose));
+            color: var(--bg-dark);
+            border: none;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(212, 165, 116, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-clear {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid rgba(212, 165, 116, 0.3);
+        }
+
+        .btn-clear:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            padding: 1rem;
+            background: rgba(201, 124, 124, 0.1);
+            border: 1px solid var(--rose);
+            border-radius: 4px;
+            color: var(--rose);
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            animation: slideDown 0.4s ease;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Wall Section */
+        .wall-section {
+            padding: 4rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeIn 0.8s ease-out 0.6s both;
+        }
+
+        .wall-title {
+            font-family: 'Georgia', 'Garamond', serif;
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--gold);
+            font-weight: 300;
+        }
+
+        .notes-container {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 1fr;
+        }
+
+        .note-card {
+            background: rgba(45, 27, 78, 0.4);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            padding: 1.5rem;
+            border-radius: 4px;
+            backdrop-filter: blur(10px);
+            animation: slideIn 0.6s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .note-card:hover {
+            border-color: rgba(212, 165, 116, 0.4);
+            background: rgba(45, 27, 78, 0.6);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .note-content {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .note-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(212, 165, 116, 0.1);
+            padding-top: 1rem;
+        }
+
+        .note-author {
+            color: var(--rose);
+            font-weight: 500;
+        }
+
+        .note-time {
+            color: var(--text-muted);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-text {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 2rem;
+        }
+
+        .divider {
+            width: 40px;
+            height: 1px;
+            background: var(--accent);
+            margin: 0 auto 1rem;
+            opacity: 0.5;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 1.5rem;
+            }
+
+            .form-section {
+                padding: 1.5rem;
+            }
+
+            .wall-section {
+                padding: 2rem 1.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--rose);
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Background -->
+    <div id="particles"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">miss2.cyou</h1>
+                <p class="hero-subtitle">
+                    A quiet place to leave a note for someone you miss<br>
+                    <em>a lover, a friend, a memory, or a version of yourself</em>
+                </p>
+            </div>
+            <div class="scroll-hint">scroll down to leave your note</div>
+        </section>
+
+        <!-- Form Section -->
+        <section class="form-section">
+            <h2 class="form-title">Leave Your Note</h2>
+            <p class="form-subtitle">Your feelings matter. Share them here.</p>
+            
+            <div class="success-message" id="successMessage">
+                ✨ Your note has been left. Someone will find it.
+            </div>
+
+            <form id="noteForm">
+                <div class="form-group">
+                    <label for="authorName">Your name or sign-off <span style="color: var(--text-muted);">(optional)</span></label>
+                    <input type="text" id="authorName" placeholder="e.g., M, a stranger, your ghost...">
+                </div>
+
+                <div class="form-group">
+                    <label for="noteContent">Your note <span style="color: var(--rose);">*</span></label>
+                    <textarea id="noteContent" placeholder="What do you want to say to them?" required></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-submit">Leave Note</button>
+                    <button type="reset" class="btn-clear">Clear</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Wall Section -->
+        <section class="wall-section">
+            <h2 class="wall-title">Notes Left Behind</h2>
+            <div class="divider"></div>
+            <div class="notes-container" id="notesContainer">
+                <div class="empty-state">
+                    <p class="empty-state-text">No notes yet.<br>Be the first to leave one.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>miss2.cyou — miss to see you</p>
+            <p style="margin-top: 0.5rem; opacity: 0.6;">a space for quiet feelings</p>
+        </footer>
+    </div>
+
+    <script>
+        // Particle Background Animation
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = window.innerWidth > 768 ? 50 : 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                const duration = Math.random() * 10 + 15;
+                const tx = (Math.random() - 0.5) * 100;
+
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.setProperty('--tx', tx + 'px');
+                particle.style.animation = `float ${duration}s linear infinite`;
+                particle.style.animationDelay = Math.random() * duration + 's';
+
+                container.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // Notes Management
+        class NotesApp {
+            constructor() {
+                this.storageKey = 'miss2Notes';
+                this.form = document.getElementById('noteForm');
+                this.authorInput = document.getElementById('authorName');
+                this.contentInput = document.getElementById('noteContent');
+                this.notesContainer = document.getElementById('notesContainer');
+                this.successMessage = document.getElementById('successMessage');
+
+                this.init();
+            }
+
+            init() {
+                this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+                this.loadNotes();
+            }
+
+            handleSubmit(e) {
+                e.preventDefault();
+
+                const note = {
+                    id: Date.now(),
+                    author: this.authorInput.value || 'A stranger',
+                    content: this.contentInput.value,
+                    timestamp: new Date().toISOString()
+                };
+
+                this.saveNote(note);
+                this.form.reset();
+                this.showSuccessMessage();
+                this.loadNotes();
+
+                // Scroll to notes section
+                setTimeout(() => {
+                    document.querySelector('.wall-section').scrollIntoView({ behavior: 'smooth' });
+                }, 500);
+            }
+
+            saveNote(note) {
+                const notes = this.getNotes();
+                notes.unshift(note);
+                // Keep only last 100 notes to avoid storage issues
+                if (notes.length > 100) notes.pop();
+                localStorage.setItem(this.storageKey, JSON.stringify(notes));
+            }
+
+            getNotes() {
+                const notes = localStorage.getItem(this.storageKey);
+                return notes ? JSON.parse(notes) : [];
+            }
+
+            loadNotes() {
+                const notes = this.getNotes();
+                this.notesContainer.innerHTML = '';
+
+                if (notes.length === 0) {
+                    this.notesContainer.innerHTML = `
+                        <div class="empty-state">
+                            <p class="empty-state-text">No notes yet.<br>Be the first to leave one.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                notes.forEach((note, index) => {
+                    const noteCard = document.createElement('div');
+                    noteCard.classList.add('note-card');
+                    noteCard.style.animationDelay = `${index * 0.1}s`;
+
+                    const timeAgo = this.getTimeAgo(note.timestamp);
+
+                    noteCard.innerHTML = `
+                        <p class="note-content">"${this.escapeHtml(note.content)}"</p>
+                        <div class="note-meta">
+                            <span class="note-author">— ${this.escapeHtml(note.author)}</span>
+                            <span class="note-time">${timeAgo}</span>
+                        </div>
+                    `;
+
+                    this.notesContainer.appendChild(noteCard);
+                });
+            }
+
+            getTimeAgo(isoString) {
+                const date = new Date(isoString);
+                const now = new Date();
+                const seconds = Math.floor((now - date) / 1000);
+
+                if (seconds < 60) return 'just now';
+                if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+                if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+                if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+
+                return date.toLocaleDateString();
+            }
+
+            showSuccessMessage() {
+                this.successMessage.classList.add('show');
+                setTimeout(() => {
+                    this.successMessage.classList.remove('show');
+                }, 3000);
+            }
+
+            escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, (m) => map[m]);
+            }
+        }
+
+        // Initialize app when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new NotesApp();
+        });
+
+        // Smooth scroll for scroll hint
+        document.querySelector('.scroll-hint').addEventListener('click', () => {
+            document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
+</body>
+  </html>
