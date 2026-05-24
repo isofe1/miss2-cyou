@@ -596,6 +596,7 @@
   <p>a gentle corner of the internet &mdash; <a href="https://miss2.cyou">miss2.cyou</a></p>
 </footer>
 
+<script src="/utils.js"></script>
 <script>
 // ── Config check ────────────────────────────────────────────
 const configured = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON !== 'YOUR_SUPABASE_ANON_KEY';
@@ -675,9 +676,6 @@ function saveLiked() { localStorage.setItem('miss2_liked', JSON.stringify([...li
 // ── Owned notes (localStorage) ──────────────────────────────
 let ownedNotes = JSON.parse(localStorage.getItem('miss2_owned') || '{}');
 function saveOwned() { localStorage.setItem('miss2_owned', JSON.stringify(ownedNotes)); }
-function generateDeleteKey() {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-}
 
 // ── Notes state ─────────────────────────────────────────────
 const PAGE = 12;
