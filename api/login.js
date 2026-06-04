@@ -1,10 +1,10 @@
 const crypto = require('crypto');
 
-const ADMIN_PASSWORD_HASH = '37b72274ed7a3c1f23781857c0c9961f27629bcec31193950be5e746111df081';
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
 // In a real app, this should be an environment variable. Using a static secret for now but hashing it.
 const SESSION_SECRET = process.env.SESSION_SECRET || 'miss2-cyou-fallback-secret-key-2024';
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

@@ -30,7 +30,7 @@ function validateSessionCookie(cookieHeader) {
   return true;
 }
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   const isAuthenticated = validateSessionCookie(req.headers.cookie);
 
   let html = '';
