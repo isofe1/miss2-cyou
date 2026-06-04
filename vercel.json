@@ -1,3 +1,85 @@
 {
-  "cleanUrls": true
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/admin",
+      "missing": [
+        {
+          "type": "host",
+          "value": "panel.miss2.cyou"
+        }
+      ],
+      "destination": "/404"
+    },
+    {
+      "source": "/admin.html",
+      "missing": [
+        {
+          "type": "host",
+          "value": "panel.miss2.cyou"
+        }
+      ],
+      "destination": "/404"
+    },
+    {
+      "source": "/api/admin",
+      "missing": [
+        {
+          "type": "host",
+          "value": "panel.miss2.cyou"
+        }
+      ],
+      "destination": "/404"
+    },
+    {
+      "source": "/api/login",
+      "missing": [
+        {
+          "type": "host",
+          "value": "panel.miss2.cyou"
+        }
+      ],
+      "destination": "/404"
+    },
+    {
+      "source": "/api/logout",
+      "missing": [
+        {
+          "type": "host",
+          "value": "panel.miss2.cyou"
+        }
+      ],
+      "destination": "/404"
+    },
+    {
+      "source": "/api/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "panel.miss2.cyou"
+        }
+      ],
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/logo.png",
+      "has": [
+        {
+          "type": "host",
+          "value": "panel.miss2.cyou"
+        }
+      ],
+      "destination": "/logo.png"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "panel.miss2.cyou"
+        }
+      ],
+      "destination": "/api/admin"
+    }
+  ]
 }

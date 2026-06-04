@@ -1,13 +1,51 @@
+const crypto = require('crypto');
+
+const SESSION_SECRET = process.env.SESSION_SECRET || 'miss2-cyou-fallback-secret-key-2024';
+
+// Helper function to securely parse and validate cookies
+function validateSessionCookie(cookieHeader) {
+  if (!cookieHeader) return false;
+
+  // Extract just the miss2_admin_session cookie
+  const match = cookieHeader.match(/(?:^|;\s*)miss2_admin_session=([^;]+)/);
+  if (!match) return false;
+
+  const cookieValue = match[1];
+  const parts = cookieValue.split('.');
+
+  if (parts.length !== 2) return false;
+  const [payload, signature] = parts;
+
+  // Verify signature
+  const expectedSignature = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
+  if (signature !== expectedSignature) return false;
+
+  // Verify expiration
+  const payloadMatch = payload.match(/^auth=(\d+)$/);
+  if (!payloadMatch) return false;
+
+  const expiresAt = parseInt(payloadMatch[1], 10);
+  if (Date.now() > expiresAt) return false;
+
+  return true;
+}
+
+export default function handler(req, res) {
+  const isAuthenticated = validateSessionCookie(req.headers.cookie);
+
+  let html = '';
+
+  if (isAuthenticated) {
+    html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>miss you — admin</title>
+<title>miss you — admin panel</title>
 <link rel="icon" type="image/png" href="/logo.png">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -23,38 +61,7 @@
   }
   body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; }
 
-  /* Login screen */
-  #login-screen {
-    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
-  }
-  .login-box {
-    width: 100%; max-width: 360px; background: var(--card-bg); border: 1px solid var(--border);
-    border-radius: 4px; padding: 40px 36px;
-  }
-  .login-logo {
-    font-family: 'Cormorant Garamond', serif; font-size: 13px; letter-spacing: 0.3em;
-    color: var(--gold); text-transform: uppercase; margin-bottom: 32px; text-align: center;
-  }
-  .login-title { font-size: 20px; font-weight: 500; margin-bottom: 8px; text-align: center; }
-  .login-sub { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 32px; }
-  .field-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; display: block; }
-  .field-input {
-    width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text);
-    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300; padding: 12px 16px;
-    outline: none; border-radius: 2px; transition: border-color 0.3s; margin-bottom: 16px;
-  }
-  .field-input:focus { border-color: var(--rose-dim); }
-  .login-btn {
-    width: 100%; padding: 14px; background: transparent; border: 1px solid var(--rose-dim);
-    color: var(--rose); font-family: 'DM Sans', sans-serif; font-size: 12px;
-    letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer;
-    transition: background 0.3s; border-radius: 2px;
-  }
-  .login-btn:hover { background: rgba(232,180,168,0.07); }
-  .login-error { font-size: 13px; color: var(--danger); text-align: center; margin-top: 12px; display: none; }
-
   /* Admin panel */
-  #admin-panel { display: none; }
   .topbar {
     border-bottom: 1px solid var(--border); padding: 16px 32px;
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
@@ -149,20 +156,6 @@
 </head>
 <body>
 
-<!-- ── Login ── -->
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">miss2.cyou</div>
-    <div class="login-title">Admin access</div>
-    <div class="login-sub">Enter your password to continue</div>
-    <label class="field-label">password</label>
-    <input class="field-input" type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')tryLogin()">
-    <button class="login-btn" onclick="tryLogin()">enter</button>
-    <div class="login-error" id="login-error">incorrect password</div>
-  </div>
-</div>
-
-<!-- ── Admin panel ── -->
 <div id="admin-panel">
   <div class="topbar">
     <div class="topbar-left">
@@ -204,59 +197,13 @@
 const SUPABASE_URL  = 'https://ybehsminxxrblfcauegm.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliZWhzbWlueHhyYmxmY2F1ZWdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDQ4NDQsImV4cCI6MjA5NTEyMDg0NH0.k-OPDSAf4trJppvoKJGH7Qd5OiiE7mjDSU9u2s9zxrY';
 
-// ── ADMIN PASSWORD HASH (SHA-256) ────────────────────────────
-// The password is hashed to prevent plaintext exposure in client-side code.
-// The original password 'miss2admin2026' evaluates to this hash.
-// To generate a new hash, you can use:
-// node -e "console.log(require('crypto').createHash('sha256').update('newpassword').digest('hex'))"
-const ADMIN_PASSWORD_HASH = '37b72274ed7a3c1f23781857c0c9961f27629bcec31193950be5e746111df081';
-// ─────────────────────────────────────────────────────────────
-
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// ── Auth ─────────────────────────────────────────────────────
-async function tryLogin() {
-  const val = document.getElementById('pw-input').value;
-
-  let hashHex = '';
-  // crypto.subtle is only available in secure contexts (HTTPS or localhost)
-  if (window.crypto && window.crypto.subtle) {
-    // Hash the input password using SHA-256
-    const encoder = new TextEncoder();
-    const data = encoder.encode(val);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  } else {
-    // Fallback: This is not ideal but prevents breaking completely on non-HTTPS
-    // In a real app, you must serve over HTTPS.
-    alert("Insecure context detected. Crypto API unavailable.");
-    return;
-  }
-
-  if (hashHex === ADMIN_PASSWORD_HASH) {
-    sessionStorage.setItem('miss2_admin', '1');
-    showPanel();
-  } else {
-    document.getElementById('login-error').style.display = 'block';
-    document.getElementById('pw-input').value = '';
-    document.getElementById('pw-input').focus();
-  }
-}
-
-function logout() {
-  sessionStorage.removeItem('miss2_admin');
+async function logout() {
+  await fetch('/api/logout', { method: 'POST' });
   location.reload();
 }
-
-function showPanel() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('admin-panel').style.display = 'block';
-  loadNotes();
-}
-
-if (sessionStorage.getItem('miss2_admin') === '1') showPanel();
 
 // ── State ─────────────────────────────────────────────────────
 let allNotes = [];
@@ -315,26 +262,26 @@ function renderNotes() {
   const filtered = getFiltered();
   if (!filtered.length) { list.innerHTML = '<div class="empty">no notes found</div>'; return; }
 
-  list.innerHTML = filtered.map(n => `
-    <div class="admin-note${n.pinned?' is-pinned':''}" id="anote-${n.id}">
+  list.innerHTML = filtered.map(n => \`
+    <div class="admin-note\${n.pinned?' is-pinned':''}" id="anote-\${n.id}">
       <div class="note-content">
-        <div class="note-msg">"${esc(n.message)}"</div>
+        <div class="note-msg">"\${esc(n.message)}"</div>
         <div class="note-info">
-          <span class="note-from">— ${esc(n.from_name||'anonymous')}</span>
-          <span class="note-time">${timeAgo(n.created_at)}</span>
-          <span class="note-likes">♡ ${n.likes||0}</span>
-          ${n.pinned ? '<span class="pin-badge">pinned</span>' : ''}
+          <span class="note-from">— \${esc(n.from_name||'anonymous')}</span>
+          <span class="note-time">\${timeAgo(n.created_at)}</span>
+          <span class="note-likes">♡ \${n.likes||0}</span>
+          \${n.pinned ? '<span class="pin-badge">pinned</span>' : ''}
         </div>
       </div>
       <div class="note-actions">
-        ${n.pinned
-          ? `<button class="act-btn btn-unpin" onclick="togglePin('${n.id}', false)">unpin</button>`
-          : `<button class="act-btn btn-pin"   onclick="togglePin('${n.id}', true)">pin ★</button>`
+        \${n.pinned
+          ? \`<button class="act-btn btn-unpin" onclick="togglePin('\${n.id}', false)">unpin</button>\`
+          : \`<button class="act-btn btn-pin"   onclick="togglePin('\${n.id}', true)">pin ★</button>\`
         }
-        <button class="act-btn btn-delete" onclick="deleteNote('${n.id}', this)">delete</button>
+        <button class="act-btn btn-delete" onclick="deleteNote('\${n.id}', this)">delete</button>
       </div>
     </div>
-  `).join('');
+  \`).join('');
 }
 
 // ── Pin ───────────────────────────────────────────────────────
@@ -381,6 +328,114 @@ sb.channel('admin-realtime')
     toast('New note posted!');
   })
   .subscribe();
+
+// Init
+loadNotes();
 </script>
 </body>
 </html>
+    `;
+  } else {
+    html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>miss you — admin</title>
+<link rel="icon" type="image/png" href="/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #09090f; --bg2: #0f0f1a; --bg3: #141422;
+    --rose: #e8b4a8; --rose-dim: #c4897a;
+    --gold: #c9a96e; --gold-dim: #a8845a;
+    --text: #f0e8e4; --text-dim: #9e8e8a; --text-muted: #5a5060;
+    --border: rgba(232,180,168,0.12); --border-hover: rgba(232,180,168,0.28);
+    --card-bg: rgba(255,255,255,0.025);
+    --danger: #c47a7a; --danger-bg: rgba(196,122,122,0.08);
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; }
+
+  /* Login screen */
+  #login-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .login-box {
+    width: 100%; max-width: 360px; background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 40px 36px;
+  }
+  .login-logo {
+    font-family: 'Cormorant Garamond', serif; font-size: 13px; letter-spacing: 0.3em;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 32px; text-align: center;
+  }
+  .login-title { font-size: 20px; font-weight: 500; margin-bottom: 8px; text-align: center; }
+  .login-sub { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 32px; }
+  .field-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; display: block; }
+  .field-input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300; padding: 12px 16px;
+    outline: none; border-radius: 2px; transition: border-color 0.3s; margin-bottom: 16px;
+  }
+  .field-input:focus { border-color: var(--rose-dim); }
+  .login-btn {
+    width: 100%; padding: 14px; background: transparent; border: 1px solid var(--rose-dim);
+    color: var(--rose); font-family: 'DM Sans', sans-serif; font-size: 12px;
+    letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer;
+    transition: background 0.3s; border-radius: 2px;
+  }
+  .login-btn:hover { background: rgba(232,180,168,0.07); }
+  .login-error { font-size: 13px; color: var(--danger); text-align: center; margin-top: 12px; display: none; }
+</style>
+</head>
+<body>
+<div id="login-screen">
+  <form class="login-box" onsubmit="tryLogin(event)">
+    <div class="login-logo">miss2.cyou</div>
+    <div class="login-title">Admin access</div>
+    <div class="login-sub">Enter your password to continue</div>
+    <label class="field-label">password</label>
+    <input class="field-input" type="password" id="pw-input" placeholder="••••••••" required>
+    <button type="submit" class="login-btn">enter</button>
+    <div class="login-error" id="login-error">incorrect password</div>
+  </form>
+</div>
+<script>
+async function tryLogin(e) {
+  e.preventDefault();
+  const pw = document.getElementById('pw-input').value;
+  const btn = document.querySelector('.login-btn');
+  btn.disabled = true;
+  btn.textContent = 'verifying...';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+
+    if (res.ok) {
+      window.location.reload();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+      document.getElementById('pw-input').value = '';
+      document.getElementById('pw-input').focus();
+    }
+  } catch (err) {
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'enter';
+  }
+}
+</script>
+</body>
+</html>
+    `;
+  }
+
+  res.setHeader('Content-Type', 'text/html');
+  res.status(200).send(html);
+}
