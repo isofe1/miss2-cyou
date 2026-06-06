@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>miss you — not found</title>
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #09090f;
+    --rose: #e8b4a8;
+    --rose-dim: #c4897a;
+    --gold: #c9a96e;
+    --gold-dim: #a8845a;
+    --text: #f0e8e4;
+    --text-dim: #9e8e8a;
+    --text-muted: #5a5060;
+    --border: rgba(232,180,168,0.12);
+    --card-bg: rgba(255,255,255,0.025);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+  }
+
+  canvas#stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.7;
+  }
+
+  .container {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 40px 24px;
+    max-width: 560px;
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.2s;
+  }
+
+  .number {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(96px, 22vw, 160px);
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(232,180,168,0.18);
+    letter-spacing: -0.04em;
+    margin-bottom: 0;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.4s;
+    user-select: none;
+  }
+
+  .ornament {
+    color: var(--gold-dim);
+    font-size: 16px;
+    letter-spacing: 0.5em;
+    margin: 12px 0 28px;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.5s;
+  }
+
+  .title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(28px, 7vw, 44px);
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.6s;
+  }
+
+  .title em {
+    font-style: italic;
+    color: var(--rose);
+  }
+
+  .sub {
+    font-size: clamp(14px, 3.5vw, 16px);
+    color: var(--text-dim);
+    line-height: 1.75;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.8s;
+  }
+
+  .btn-home {
+    display: inline-block;
+    padding: 14px 40px;
+    border: 1px solid var(--rose-dim);
+    color: var(--rose);
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: background 0.3s, color 0.3s;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 1s;
+  }
+
+  .btn-home:hover {
+    background: rgba(232,180,168,0.08);
+    color: var(--text);
+  }
+
+  /* Floating quote */
+  .floating-quote {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    opacity: 0;
+    animation: fadeUp 1.2s ease forwards 1.4s;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 480px) {
+    .floating-quote { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div class="container">
+  <p class="logo">miss2.cyou</p>
+  <div class="number">404</div>
+  <div class="ornament">· · ✦ · ·</div>
+  <h1 class="title">this page has<br>gone <em>missing.</em></h1>
+  <p class="sub">
+    Like so many things we look for<br>
+    and cannot find — it simply isn't here.
+  </p>
+  <a href="/" class="btn-home">go back home</a>
+</div>
+
+<p class="floating-quote">"some things disappear before we can hold onto them"</p>
+
+<script>
+  // Stars — identical to main site
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [];
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+  function initStars() {
+    stars = [];
+    const count = Math.floor((W * H) / 6000);
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * W, y: Math.random() * H,
+        r: Math.random() * 1.2 + 0.2,
+        a: Math.random(), da: (Math.random() - 0.5) * 0.003,
+        dx: (Math.random() - 0.5) * 0.08, dy: (Math.random() - 0.5) * 0.08
+      });
+    }
+  }
+
+  function drawStars() {
+    ctx.clearRect(0, 0, W, H);
+    for (const s of stars) {
+      s.a = Math.max(0.05, Math.min(1, s.a + s.da));
+      if (s.a <= 0.05 || s.a >= 1) s.da *= -1;
+      s.x = (s.x + s.dx + W) % W;
+      s.y = (s.y + s.dy + H) % H;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(232,180,168,${s.a * 0.5})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(drawStars);
+  }
+
+  window.addEventListener('resize', () => { resize(); initStars(); });
+  resize(); initStars(); drawStars();
+</script>
+</body>
+</html>
